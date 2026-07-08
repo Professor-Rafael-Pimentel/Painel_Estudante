@@ -195,7 +195,7 @@
                 <input type="number" class="grade-in" placeholder="Nota 6" step="0.1">
             </div>
             <button onclick="calcGrades2()">Calcular Média Trimestral</button>
-            <div id="gradeRes" style="text-align: center; font-weight: bold; padding: 12px; border-radius: 12px; display: none;"></div>
+            <div id="gradeRes2" style="text-align: center; font-weight: bold; padding: 12px; border-radius: 12px; display: none;"></div>
         </section>
 
         <section class="card">
@@ -298,7 +298,7 @@
             let sum=0, count=0;
             document.querySelectorAll('.grade-in').forEach(i => { if(i.value){ sum+=parseFloat(i.value); count++; }});
             const media = count > 0 ? sum/count : 0;
-            const res = document.getElementById('gradeRes');
+            const res = document.getElementById('gradeRes2');
             res.style.display = "block";
             res.innerText = `Média: ${media.toFixed(1)} - ${media >= 18 ? 'Aprovado! 🏆' : 'Recuperação 📚'}`;
             res.style.color = media >= 18 ? '#22c55e' : '#ef4444';
