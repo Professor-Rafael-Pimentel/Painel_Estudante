@@ -104,6 +104,31 @@
             font-size:clamp(.8rem, 1.2vw, 1rem);
             line-height:1.4;
         }
+
+        /* ================= RESPONSIVO ================= */
+
+    @media(max-width:768px){
+
+        .header-center{
+            order:0;
+            width:100%;
+        }
+
+        .logo-img{
+            height:clamp(40px,8vw,60px);
+            max-width:100px;
+        }
+
+        .header-center h1{
+            /*font-size:12px;*/
+            font-size:0.9rem;
+        }
+
+        .header-center p{
+            /*font-size:8px;*/
+            font-size:.5rem;
+        }
+    }
         
     </style>
 </head>
