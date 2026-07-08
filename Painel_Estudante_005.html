@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel do Estudante</title>
+    <style>
+        :root {
+            --primary: #6366f1;
+            --accent: #22c55e;
+            --bg: #f8fafc;
+            --card: rgba(255, 255, 255, 0.85);
+            --text: #1e293b;
+            --shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
+            --border: rgba(0, 0, 0, 0.1);
+        }
+
+        .dark-mode {
+            --primary: #818cf8;
+            --accent: #4ade80;
+            --bg: #020617;
+            --card: rgba(30, 41, 59, 0.7);
+            --text: #f1f5f9;
+            --shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.6);
+            --border: rgba(255, 255, 255, 0.1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; transition: background 0.3s, color 0.3s; font-family: 'Segoe UI', system-ui, sans-serif; }
+        body { background: var(--bg); color: var(--text); padding: 20px; min-height: 100vh; line-height: 1.5; }
+        .container { max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 20px; }
+
+        header {
+            grid-column: 1 / -1; display: flex; justify-content: space-between; align-items: center;
+            background: var(--card); padding: 20px 30px; border-radius: 20px; backdrop-filter: blur(10px);
+            margin-bottom: 10px; box-shadow: var(--shadow); border: 1px solid var(--border);
+        }
+
+        .card {
+            background: var(--card); backdrop-filter: blur(12px); border: 1px solid var(--border);
+            border-radius: 24px; padding: 25px; box-shadow: var(--shadow); display: flex; flex-direction: column; gap: 15px;
+        }
+
+        h2 { font-size: 1rem; text-transform: uppercase; letter-spacing: 1px; color: var(--primary); display: flex; align-items: center; gap: 8px; }
+        input, textarea, button, select { padding: 12px; border-radius: 12px; border: 1px solid var(--border); background: rgba(255,255,255,0.05); color: var(--text); width: 100%; outline: none; }
+        button { background: var(--primary); color: white; font-weight: bold; border: none; cursor: pointer; transition: 0.2s; }
+        button:hover { filter: brightness(1.1); transform: translateY(-1px); }
+
+        /* Cronômetro */
+        .chrono-display { font-size: 2.5rem; font-weight: 800; text-align: center; color: var(--primary); font-family: 'Courier New', monospace; }
+        .chrono-ds { font-size: 1.2rem; color: var(--accent); }
+
+        /* Jogo da Velha */
+        .tabuleiro { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 10px 0; }
+        .celula { 
+            height: 80px; background: rgba(0,0,0,0.05); border: 2px solid var(--border); 
+            font-size: 2rem; display: flex; align-items: center; justify-content: center; cursor: pointer; border-radius: 12px;
+        }
+        .celula.taken { cursor: not-allowed; }
+
+        /* Bolhas */
+        #bubble-area { position: relative; height: 220px; background: linear-gradient(135deg, #6366f111, #a855f711); border-radius: 15px; overflow: hidden; border: 1px solid var(--border); }
+        .bubble { position: absolute; border-radius: 50%; background: var(--primary); opacity: 0.6; cursor: pointer; box-shadow: inset -2px -2px 6px rgba(0,0,0,0.2); transition: transform 0.2s; }
+
+        /* Listas e Extras */
+        .task-item { display: flex; align-items: center; gap: 10px; padding: 10px; background: rgba(0,0,0,0.03); border-radius: 10px; }
+        .grade-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .lazer-section { grid-column: 1 / -1; margin-top: 20px; border-top: 2px solid var(--border); padding-top: 20px; }
+    
+   
+
+        .logo-img{
+            background: rgba(255, 255, 255, 0.95);
+            padding: 5px;
+            border-radius:12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+            object-fit:contain;
+            width:clamp(40px, 8vw, 60px);
+            height:auto;
+            flex-shrink:0;
+        }
+    
+        .header-center{
+            text-align: center; 
+            flex-grow: 1; 
+            padding: 0 10px;
+            min-width:220px;
+        }
+    
+        .header-center h1{
+            margin: 0;
+            font-weight: 700; 
+            letter-spacing: 0.5px;
+            /*font-size: 22px; */
+            font-size:clamp(1.2rem, 2vw, 2rem);
+            line-height:1.2;
+            margin-bottom:6px;
+            word-break:break-word;
+            
+        }
+    
+        .header-center p{
+            opacity:0.9;
+            /*font-size:13px;*/
+            font-size:clamp(.8rem, 1.2vw, 1rem);
+            line-height:1.4;
+        }
+        
+    </style>
+</head>
+
+<body>
+
+    <header>
+        <img src="logos_ESEDRAT.png" class="logo-img" alt="ESEDRAT" onerror="this.style.display='none'">
+        <div class="header-center">
+            <h1 id="welcome-text">Painel do Estudante 🚀</h1>
+            <p id="sub-msg">Seu centro de controle de alta performance.</p>
+        </div>
+        <img src="logos_MG.png" class="logo-img" alt="MG" onerror="this.style.display='none'">
+    </header>
+    
+    
+
+    <div class="container">
+        <section class="card">
+            <h2>👤 Perfil do Estudante</h2>
+            <div style="display: flex; gap: 10px;">
+                <input type="text" id="userNameInput" placeholder="Nome do estudante...">
+                <button onclick="saveUserProfile()" style="width: 80px;">Salvar</button>
+            </div>
+            <p id="profileStatus" style="font-size: 0.8rem; opacity: 0.7;"></p>
+            <button onclick="toggleTheme()" style="width: 50px; height: 50px; border-radius: 50%; font-size: 1.5rem;">🌓</button>
+        </section>
+
+        <section class="card">
+            <h2>⏱️ Gestor de Foco</h2>
+            <div class="chrono-display">
+                <span id="c-main">00:00:00</span><span class="chrono-ds">.<span id="c-ds">0</span></span>
+            </div>
+            <div style="display: flex; gap: 8px;">
+                <button onclick="startChrono()">Iniciar</button>
+                <button onclick="stopChrono()" style="background: #f59e0b;">Pausar</button>
+                <button onclick="resetChrono()" style="background: #ef4444;">Zerar</button>
+            </div>
+        </section>
+
+        <section class="card">
+            <h2>📝 Bloco de Notas</h2>
+            <textarea id="notesArea" rows="6" placeholder="Rascunhos e insights..." oninput="saveNotes()"></textarea>
+            <span style="font-size: 0.7rem; text-align: right; opacity: 0.6;">Sincronizado...</span>
+        </section>
+
+        <section class="card">
+            <h2>📅 Lista de Tarefas</h2>
+            <div style="display: flex; gap: 5px;">
+                <input type="text" id="taskInput" placeholder="Nova meta...">
+                <button onclick="addTask()" style="width: 50px;">+</button>
+            </div>
+            <div id="taskList" style="max-height: 200px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px;"></div>
+        </section>
+
+        <section class="card">
+            <h2>🌡️ Termômetro de Notas Trimestral</h2>
+            <div class="grade-grid">
+                <input type="number" class="grade-in" placeholder="Nota 1" step="0.1">
+                <input type="number" class="grade-in" placeholder="Nota 2" step="0.1">
+                <input type="number" class="grade-in" placeholder="Nota 3" step="0.1">
+                <input type="number" class="grade-in" placeholder="Nota 4" step="0.1">
+                <input type="number" class="grade-in" placeholder="Nota 5" step="0.1">
+                <input type="number" class="grade-in" placeholder="Nota 6" step="0.1">
+            </div>
+            <button onclick="calcGrades2()">Calcular Média Trimestral</button>
+            <div id="gradeRes" style="text-align: center; font-weight: bold; padding: 12px; border-radius: 12px; display: none;"></div>
+        </section>
+
+        <section class="card">
+            <h2>🌡️ Termômetro de Notas Anual</h2>
+            <div class="grade-grid">
+                <input type="number" class="grade-in" placeholder="1° Trimestre" step="0.1">
+                <input type="number" class="grade-in" placeholder="2° Trimestre" step="0.1">
+                <input type="number" class="grade-in" placeholder="3° Trimestre" step="0.1">
+            </div>
+            <button onclick="calcGrades()">Calcular Média Final</button>
+            <div id="gradeRes" style="text-align: center; font-weight: bold; padding: 12px; border-radius: 12px; display: none;"></div>
+        </section>
+
+        <div class="lazer-section">
+            <h2 style="margin-bottom: 20px; color: var(--accent); text-align: center; justify-content: center;">🎡 Zona de Descompressão</h2>
+            <div class="container">
+                
+                <section class="card">
+                    <h2>🎮 Jogo da Velha (IA)</h2>
+                    <div style="margin-bottom: 10px;">
+                        <select id="aiDifficulty" onchange="resetVelha()">
+                            <option value="easy">Dificuldade: Fácil</option>
+                            <option value="hard" selected>Dificuldade: Difícil</option>
+                        </select>
+                    </div>
+                    <p id="statusVelha" style="text-align: center; font-weight: bold;">Sua vez (X)</p>
+                    <div class="tabuleiro" id="gridVelha"></div>
+                    <button onclick="resetVelha()" style="background: #64748b;">Reiniciar Jogo</button>
+                </section>
+
+                <section class="card">
+                    <h2>🫧 Bolhas Anti-Estresse</h2>
+                    <p style="font-size: 0.8rem; text-align: center; opacity: 0.8;">Clique nas bolhas para relaxar!</p>
+                    <div id="bubble-area"></div>
+                </section>
+
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- PERFIL E TEMA ---
+        function saveUserProfile() {
+            const name = document.getElementById('userNameInput').value;
+            if(name) {
+                localStorage.setItem('hub_username', name);
+                updateProfileUI(name);
+            }
+        }
+        function updateProfileUI(name) {
+            document.getElementById('welcome-text').innerText = `Foco, ${name}! 🚀`;
+            document.getElementById('profileStatus').innerText = `Sessão ativa para: ${name}`;
+        }
+        function toggleTheme() { document.body.classList.toggle('dark-mode'); }
+        function saveNotes() { localStorage.setItem('hub_notes', document.getElementById('notesArea').value); }
+
+        // --- CRONÔMETRO DE PRECISÃO ---
+        let d=0, s=0, m=0, h=0, timerId;
+        function startChrono() { if(!timerId) timerId = setInterval(runChrono, 100); }
+        function stopChrono() { clearInterval(timerId); timerId = null; }
+        function resetChrono() { stopChrono(); d=s=m=h=0; updateChronoDisplay(); }
+        function runChrono() {
+            d++; if(d==10){d=0; s++;} if(s==60){s=0; m++;} if(m==60){m=0; h++;}
+            updateChronoDisplay();
+        }
+        function updateChronoDisplay() {
+            const f = (v) => v.toString().padStart(2, '0');
+            document.getElementById('c-main').innerText = `${f(h)}:${f(m)}:${f(s)}`;
+            document.getElementById('c-ds').innerText = d;
+        }
+
+        // --- TAREFAS ---
+        function addTask() {
+            const val = document.getElementById('taskInput').value;
+            if(!val) return;
+            const div = document.createElement('div');
+            div.className = 'task-item';
+            div.innerHTML = `
+                <input type="checkbox" onchange="this.nextElementSibling.style.textDecoration = this.checked ? 'line-through' : 'none'; this.parentElement.style.opacity = this.checked ? '0.6' : '1'">
+                <span style="flex-grow:1">${val}</span>
+                <button onclick="this.parentElement.remove()" style="width:auto; background:#ef4444; padding:4px 8px; font-size:0.7rem">Remover</button>
+            `;
+            document.getElementById('taskList').prepend(div);
+            document.getElementById('taskInput').value = "";
+        }
+
+        // --- TERMÔMETRO DE NOTAS ---
+        function calcGrades() {
+            let sum=0, count=0;
+            document.querySelectorAll('.grade-in').forEach(i => { if(i.value){ sum+=parseFloat(i.value); count++; }});
+            const media = count > 0 ? sum : 0;
+            const res = document.getElementById('gradeRes');
+            res.style.display = "block";
+            res.innerText = `Média: ${media.toFixed(1)} - ${media >= 60 ? 'Aprovado! 🏆' : 'Recuperação 📚'}`;
+            res.style.color = media >= 60 ? '#22c55e' : '#ef4444';
+            res.style.background = media >= 60 ? 'rgba(34, 197, 94, 0.15)' : 'rgba(239, 68, 68, 0.15)';
+        }
+
+        function calcGrades2() {
+            let sum=0, count=0;
+            document.querySelectorAll('.grade-in').forEach(i => { if(i.value){ sum+=parseFloat(i.value); count++; }});
+            const media = count > 0 ? sum/count : 0;
+            const res = document.getElementById('gradeRes');
+            res.style.display = "block";
+            res.innerText = `Média: ${media.toFixed(1)} - ${media >= 18 ? 'Aprovado! 🏆' : 'Recuperação 📚'}`;
+            res.style.color = media >= 18 ? '#22c55e' : '#ef4444';
+            res.style.background = media >= 18 ? 'rgba(34, 197, 94, 0.15)' : 'rgba(239, 68, 68, 0.15)';
+        }
+
+        // --- JOGO DA VELHA COM IA MINIMAX ---
+        let board = ["","","","","","","","",""];
+        let gameActive = true;
+        const huPlayer = "X";
+        const aiPlayer = "O";
+
+        function resetVelha() {
+            board = ["","","","","","","","",""]; gameActive = true;
+            document.getElementById('statusVelha').innerHTML = "Sua vez (<b>X</b>)";
+            const grid = document.getElementById('gridVelha');
+            grid.innerHTML = "";
+            for(let i=0; i<9; i++) {
+                const cell = document.createElement('div');
+                cell.className = 'celula'; cell.id = `cell-${i}`;
+                cell.onclick = () => playerMove(i);
+                grid.appendChild(cell);
+            }
+        }
+
+        function playerMove(idx) {
+            if(board[idx] === "" && gameActive) {
+                makeMove(idx, huPlayer);
+                if(!checkWin(board, huPlayer) && !checkTie()) {
+                    gameActive = false;
+                    document.getElementById('statusVelha').innerText = "IA pensando...";
+                    setTimeout(aiMove, 500);
+                }
+            }
+        }
+
+        function aiMove() {
+            const difficulty = document.getElementById('aiDifficulty').value;
+            let move = (difficulty === "easy") 
+                ? board.map((v, i) => v === "" ? i : null).filter(v => v !== null)[Math.floor(Math.random() * board.filter(v => v === "").length)]
+                : minimax(board, aiPlayer).index;
+
+            if(move !== undefined) {
+                makeMove(move, aiPlayer);
+                if(!checkWin(board, aiPlayer) && !checkTie()) {
+                    gameActive = true;
+                    document.getElementById('statusVelha').innerHTML = "Sua vez (<b>X</b>)";
+                }
+            }
+        }
+
+        function makeMove(idx, player) {
+            board[idx] = player;
+            const cell = document.getElementById(`cell-${idx}`);
+            cell.innerText = player;
+            cell.classList.add('taken');
+            cell.style.color = player === huPlayer ? "var(--primary)" : "var(--accent)";
+        }
+
+        function checkWin(b, p) {
+            const wins = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
+            let victory = wins.find(c => b[c[0]] === p && b[c[1]] === p && b[c[2]] === p);
+            if(victory) {
+                document.getElementById('statusVelha').innerHTML = p === huPlayer ? "🎉 Você venceu!" : "🤖 IA venceu!";
+                gameActive = false; return true;
+            }
+            return false;
+        }
+
+        function checkTie() {
+            if(!board.includes("") && gameActive) {
+                document.getElementById('statusVelha').innerText = "Empate! 🤝";
+                gameActive = false; return true;
+            }
+            return false;
+        }
+
+        function minimax(newBoard, player) {
+            let availSpots = newBoard.map((v, i) => v === "" ? i : null).filter(v => v !== null);
+            if (checkWinMinimax(newBoard, huPlayer)) return {score: -10};
+            if (checkWinMinimax(newBoard, aiPlayer)) return {score: 10};
+            if (availSpots.length === 0) return {score: 0};
+
+            let moves = [];
+            for (let i = 0; i < availSpots.length; i++) {
+                let move = {};
+                move.index = availSpots[i];
+                newBoard[availSpots[i]] = player;
+                move.score = (player === aiPlayer) ? minimax(newBoard, huPlayer).score : minimax(newBoard, aiPlayer).score;
+                newBoard[availSpots[i]] = "";
+                moves.push(move);
+            }
+
+            let bestMove;
+            if(player === aiPlayer) {
+                let bestScore = -Infinity;
+                for(let i=0; i<moves.length; i++) { if(moves[i].score > bestScore) { bestScore = moves[i].score; bestMove = i; } }
+            } else {
+                let bestScore = Infinity;
+                for(let i=0; i<moves.length; i++) { if(moves[i].score < bestScore) { bestScore = moves[i].score; bestMove = i; } }
+            }
+            return moves[bestMove];
+        }
+
+        function checkWinMinimax(b, p) {
+            const wins = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
+            return wins.some(c => b[c[0]] === p && b[c[1]] === p && b[c[2]] === p);
+        }
+
+        // --- BOLHAS RELAXANTES ---
+        function spawnBubble() {
+            const area = document.getElementById('bubble-area');
+            const bubble = document.createElement('div');
+            bubble.className = 'bubble';
+            const size = Math.random() * 40 + 20;
+            bubble.style.width = size + 'px'; bubble.style.height = size + 'px';
+            bubble.style.left = Math.random() * 90 + '%'; bubble.style.top = Math.random() * 80 + '%';
+            
+            bubble.onclick = () => {
+                bubble.style.transform = 'scale(0)';
+                setTimeout(() => { bubble.remove(); spawnBubble(); }, 250);
+            };
+            area.appendChild(bubble);
+        }
+
+        // --- SETUP INICIAL ---
+        window.onload = () => {
+            const savedName = localStorage.getItem('hub_username');
+            if(savedName) {
+                document.getElementById('userNameInput').value = savedName;
+                updateProfileUI(savedName);
+            }
+            document.getElementById('notesArea').value = localStorage.getItem('hub_notes') || "";
+            resetVelha();
+            for(let i=0; i<6; i++) spawnBubble();
+        };
+    </script>
+</body>
+</html>
